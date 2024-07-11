@@ -26,8 +26,8 @@ sort_versions() {
 
 list_github_tags() {
 	git ls-remote --tags --refs "$GH_REPO" |
-		grep -o 'refs/tags/.*' | cut -d/ -f3- #|
-	# sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
+		grep -o 'refs/tags/.*' | cut -d/ -f3- |
+		sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
 }
 
 list_all_versions() {
@@ -70,7 +70,7 @@ download_release() {
 
 	# TODO: Adapt the release URL convention for fzf
 	# https://github.com/junegunn/fzf/releases/download/v0.54.0/fzf-0.54.0-linux_amd64.tar.gz
-	url="$GH_REPO/releases/download/${version}/fzf-${version#v}-${operating_system}_${arch}.tar.gz"
+	url="$GH_REPO/releases/download/v${version}/fzf-${version}-${operating_system}_${arch}.tar.gz"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	echo "* URL: $url"
