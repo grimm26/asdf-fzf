@@ -26,8 +26,8 @@ sort_versions() {
 
 list_github_tags() {
 	git ls-remote --tags --refs "$GH_REPO" |
-		grep -o 'refs/tags/.*' | cut -d/ -f3- |
-		sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
+		grep -o 'refs/tags/.*' | cut -d/ -f3- #|
+	# sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
 }
 
 list_all_versions() {
@@ -36,13 +36,41 @@ list_all_versions() {
 	list_github_tags
 }
 
+getArch() {
+	local ARCH
+	ARCH=$(uname -m)
+	case $ARCH in
+	armv5*) ARCH="armv5" ;;
+	armv6*) ARCH="armv6" ;;
+	armv7*) ARCH="arm" ;;
+	arm64) ARCH="arm64" ;;
+	aarch64) ARCH="arm64" ;;
+	x86) ARCH="386" ;;
+	x86_64) ARCH="amd64" ;;
+	i686) ARCH="386" ;;
+	i386) ARCH="386" ;;
+	esac
+	echo "$ARCH"
+}
+
+get_filename() {
+	local version="$1"
+	local platform="$2"
+
+	echo "helm-v${version}-${platform}.tar.gz"
+}
+
 download_release() {
-	local version filename url
+	local version filename url operating_system arch
 	version="$1"
 	filename="$2"
 
+	operating_system="$(uname | tr '[:upper:]' '[:lower:]')"
+	arch="$(getArch)"
+
 	# TODO: Adapt the release URL convention for fzf
-	url="$GH_REPO/archive/v${version}.tar.gz"
+	# https://github.com/junegunn/fzf/releases/download/v0.54.0/fzf-0.54.0-linux_amd64.tar.gz
+	url="$GH_REPO/releases/download/${version}/fzf-${version#v}-${operating_system}_${arch}.tar.gz"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	echo "* URL: $url"
